@@ -7,10 +7,15 @@ Si4432::Si4432(SpiRegisterOps* spiOps)
 {}
 
 void Si4432::getSyncWord(uint8_t* data) {
-    data[3] = m_spiOps->readReg(REG_SYNC_WORD3);
-    data[2] = m_spiOps->readReg(REG_SYNC_WORD2);
-    data[1] = m_spiOps->readReg(REG_SYNC_WORD1);
-    data[0] = m_spiOps->readReg(REG_SYNC_WORD0);
+    const int sync_word_len = 4;
+    m_spiOps->readBurst(SYNC_WORD3, data, sync_word_len);
 }
 
+uint8_t Si4432::getType() {
+    return m_spiOps->readReg(Regs::DEV_TYPE);
+}
 
+uint8_t Si4432::getVersion() {
+    // default is 0x06
+    return m_spiOps->readReg(Regs::DEV_VERSION) & 0b00011111;
+}

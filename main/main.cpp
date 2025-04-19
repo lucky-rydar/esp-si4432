@@ -87,8 +87,9 @@ extern "C" void app_main(void)
     printf("Sync Word: 0x%02X 0x%02X 0x%02X 0x%02X\n", syncWord[0], syncWord[1], syncWord[2], syncWord[3]);
 
     while (1) {
-        uint8_t reg_val = si4432Ops.readReg(0x01);
-        printf("Register 0x01 (Device Version) value: 0x%02X\n", reg_val);
+        uint8_t devVersion = si4432.getVersion();
+        uint8_t devType = si4432.getType();
+        printf("Device Type: 0x%02X, Version: 0x%02X\n", devType, devVersion);
 
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for 1 second
     }

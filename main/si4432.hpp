@@ -14,10 +14,13 @@ public:
 class Si4432 {
 private:
     enum Regs {
-        REG_SYNC_WORD3 = 0x36,
-        REG_SYNC_WORD2 = 0x37,
-        REG_SYNC_WORD1 = 0x38,
-        REG_SYNC_WORD0 = 0x39,
+        DEV_TYPE = 0x00,
+        DEV_VERSION = 0x01,
+
+        SYNC_WORD3 = 0x36,
+        SYNC_WORD2 = 0x37,
+        SYNC_WORD1 = 0x38,
+        SYNC_WORD0 = 0x39,
     };
 
 private:
@@ -26,6 +29,8 @@ private:
 public:
     Si4432(SpiRegisterOps* spiOps);
     void getSyncWord(uint8_t* data);
+    uint8_t getType();
+    uint8_t getVersion();
 
 };
 
