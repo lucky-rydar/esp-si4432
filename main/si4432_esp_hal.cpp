@@ -3,8 +3,6 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 
-static const char *TAG = "Si4432SpiRegisterOps";
-
 Si4432SpiRegisterOps::Si4432SpiRegisterOps(spi_device_handle_t spi, gpio_num_t spiSs) {
     m_spi = spi;
     m_spiSs = spiSs;
@@ -26,10 +24,6 @@ void Si4432SpiRegisterOps::writeBurst(uint8_t reg, uint8_t* data, uint64_t len) 
     gpio_set_level(m_spiSs, 0);
     spi_transfer(regVal);
 
-    // NOTE: Original loop counter 'i' was uint8_t, potential overflow if len > 255
-    // NOTE: Original logic `data[i] = spi_transfer(0xFF);` is likely incorrect for write,
-    //       it reads data while sending 0xFF instead of writing data[i.
-    //       Keeping original code as requested.
     for (uint8_t i = 0; i < len; ++i) {
         data[i] = spi_transfer(0xFF);
         ESP_LOGI(TAG,"Writing: 0x%02X | 0x%02X", reg, data[i]);
@@ -44,8 +38,6 @@ void Si4432SpiRegisterOps::readBurst(uint8_t reg, uint8_t* data, uint64_t len) {
     gpio_set_level(m_spiSs, 0);
     spi_transfer(regVal);
 
-    // NOTE: Original loop counter 'i' was uint8_t, potential overflow if len > 255
-    //       Keeping original code as requested.
     for (uint8_t i = 0; i < len; ++i) {
         data[i] = spi_transfer(0xFF);
         ESP_LOGI(TAG,"Reading: 0x%02X | 0x%02X", reg, data[i]);
@@ -69,3 +61,19 @@ uint8_t Si4432SpiRegisterOps::spi_transfer(uint8_t address)
 
     return datain[0];
 }
+
+void Si4432GpioOps::reset(int pin) {
+    ESP_ERROR_CHECK(gpio_reset_pin((gpio_num_t)pin));
+}
+
+void Si4432GpioOps::setDirection(int pin, GpioDirection direction) {
+    if((int)direction > (int)GpioDirection::Output) {
+        ESP_LOGE(TAG, "Invalid GPIO pin direction: %d", (int)direction);
+    }
+    ESP_ERROR_CHECK(gpio_set_direction((gpio_num_t)pin, (gpio_mode_t)direction));
+}
+
+void Si4432GpioOps::setLevel(int pin, int lvl)  {
+    ESP_ERROR_CHECK(gpio_set_level((gpio_num_t)pin, lvl));
+}
+

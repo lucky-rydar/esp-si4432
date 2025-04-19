@@ -40,15 +40,9 @@
 #endif
 
 
-extern "C" void app_main(void)
-{
+spi_device_handle_t initSpi() {
     esp_err_t ret;
-    
-    // TODO: should be configured with driver of Si4432 via GPIO HAL
-    gpio_reset_pin(PIN_SS);
-	gpio_set_direction(PIN_SS, GPIO_MODE_OUTPUT);
-	gpio_set_level(PIN_SS, 1);
-    
+
     spi_device_handle_t spi;
     spi_bus_config_t buscfg = {
         .mosi_io_num = PIN_MOSI,
@@ -72,15 +66,19 @@ extern "C" void app_main(void)
     ret = spi_bus_add_device(SPI2_HOST, &devcfg, &spi);
     ESP_ERROR_CHECK(ret);
 
-    // TODO: should be moved to driver's code
-    gpio_reset_pin(PIN_SHDN);
-	gpio_set_direction(PIN_SHDN, GPIO_MODE_OUTPUT);
-    gpio_set_level(PIN_SHDN, 0);
+    return spi;
+}
 
-    vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for 1 second
+extern "C" void app_main(void)
+{
+    spi_device_handle_t spi = initSpi();
 
-    Si4432SpiRegisterOps si4432Ops(spi, PIN_SS);
-    Si4432 si4432((SpiRegisterOps*)&si4432Ops);
+    Si4432SpiRegisterOps si4432SpiRegisterOps(spi, PIN_SS);
+    Si4432GpioOps si4432GpioOps;
+    Si4432 si4432((SpiRegisterOps*)&si4432SpiRegisterOps, (GpioOps*)&si4432GpioOps, (int)PIN_SS, (int)PIN_SHDN);
+    si4432.init();
+
+    vTaskDelay(pdMS_TO_TICKS(100)); // needed to wait for initialization of device
 
     uint8_t syncWord[4];
     si4432.getSyncWord(syncWord);

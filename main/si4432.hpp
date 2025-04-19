@@ -11,6 +11,19 @@ public:
     virtual void readBurst(uint8_t reg, uint8_t* data, uint64_t len) {}
 };
 
+enum class GpioDirection {
+    Disable,
+    Input,
+    Output
+};
+
+class GpioOps {
+public:
+    virtual void reset(int pin) = 0;
+    virtual void setDirection(int pin, GpioDirection direction) = 0;
+    virtual void setLevel(int pin, int lvl) = 0; 
+};
+
 class Si4432 {
 private:
     enum Regs {
@@ -25,9 +38,15 @@ private:
 
 private:
     SpiRegisterOps* m_spiOps;
+    GpioOps* m_gpioOps;
+    int m_ssPin = -1;
+    int m_shdnPin = -1;
 
 public:
-    Si4432(SpiRegisterOps* spiOps);
+    Si4432(SpiRegisterOps* spiOps, GpioOps* gpioOps, int ssPin, int shdnPin);
+
+    void init();
+
     void getSyncWord(uint8_t* data);
     uint8_t getType();
     uint8_t getVersion();
