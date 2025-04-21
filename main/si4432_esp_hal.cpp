@@ -25,8 +25,8 @@ void Si4432SpiRegisterOps::writeBurst(uint8_t reg, uint8_t* data, uint64_t len) 
     spi_transfer(regVal);
 
     for (uint8_t i = 0; i < len; ++i) {
-        data[i] = spi_transfer(0xFF);
-        ESP_LOGI(TAG,"Writing: 0x%02X | 0x%02X", reg, data[i]);
+        spi_transfer(data[i]);
+        ESP_LOGI(TAG,"Writing: 0x%02X+%d | 0x%02X", reg, i, data[i]);
     }
 
     gpio_set_level(m_spiSs, 1);
@@ -40,7 +40,7 @@ void Si4432SpiRegisterOps::readBurst(uint8_t reg, uint8_t* data, uint64_t len) {
 
     for (uint8_t i = 0; i < len; ++i) {
         data[i] = spi_transfer(0xFF);
-        ESP_LOGI(TAG,"Reading: 0x%02X | 0x%02X", reg, data[i]);
+        ESP_LOGI(TAG,"Reading: 0x%02X+%d | 0x%02X", reg, i, data[i]);
     }
 
     gpio_set_level(m_spiSs, 1);

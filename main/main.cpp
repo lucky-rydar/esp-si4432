@@ -84,10 +84,15 @@ extern "C" void app_main(void)
     si4432.getSyncWord(syncWord);
     printf("Sync Word: 0x%02X 0x%02X 0x%02X 0x%02X\n", syncWord[0], syncWord[1], syncWord[2], syncWord[3]);
 
+    si4432.setModulation(Si4432::ModulationType::GFSK);
+
     while (1) {
         uint8_t devVersion = si4432.getVersion();
         uint8_t devType = si4432.getType();
         printf("Device Type: 0x%02X, Version: 0x%02X\n", devType, devVersion);
+
+        Si4432::ModulationType modType = si4432.getModulation();
+        printf("Modulation set is: 0x%02X\n", (uint8_t)modType);
 
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for 1 second
     }
