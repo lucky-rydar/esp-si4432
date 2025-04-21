@@ -12,8 +12,8 @@
 #include "si4432.hpp"
 
 // TODO: all the following definitions should be specified in the kmenu
-// #define ESP32_S3
-#define ESP32_C3_MINI
+#define ESP32_S3
+//#define ESP32_C3_MINI
 
 #ifdef ESP32_C3_MINI
 #define PIN_MISO 5
@@ -76,9 +76,12 @@ extern "C" void app_main(void)
     Si4432SpiRegisterOps si4432SpiRegisterOps(spi, PIN_SS);
     Si4432GpioOps si4432GpioOps;
     Si4432 si4432((SpiRegisterOps*)&si4432SpiRegisterOps, (GpioOps*)&si4432GpioOps, (int)PIN_SS, (int)PIN_SHDN);
-    si4432.init();
+    si4432.initHw();
 
-    vTaskDelay(pdMS_TO_TICKS(100)); // needed to wait for initialization of device
+    vTaskDelay(pdMS_TO_TICKS(500)); // wait for si4432 to start 
+    // vTaskDelay(pdMS_TO_TICKS(10)); // needed to wait for initialization of device
+
+    si4432.initRegs();
 
     uint8_t syncWord[4];
     si4432.getSyncWord(syncWord);

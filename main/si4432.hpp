@@ -50,15 +50,25 @@ public:
         RECEIVE   // to tx: 200mcs, to rx: -     , supply 18.5mA
     };
 
-    enum class ModulationType {
-        UNMODULATED,
-        OOK,
-        FSK,
-        GFSK,
-        UNKNOWN
+    enum class ModulationType : uint8_t {
+        UNMODULATED = 0x00,
+        OOK = 0x01,
+        FSK = 0x02,
+        GFSK = 0x03,
+        UNKNOWN = 0xFF
+    };
+
+    enum class ModulationDataSource : uint8_t {
+        DIRECT_GPIO = 0x00,
+        DIRECT_SPI = 0x01,
+        FIFO = 0x02, // default
+        PN9 = 0x03,
+        UNKNOWN = 0xFF
     };
 
 private:
+    const uint8_t modtyp_mask = 0b00000011;
+
     SpiRegisterOps* m_spiOps;
     GpioOps* m_gpioOps;
     int m_ssPin = -1;
@@ -68,7 +78,8 @@ private:
 public:
     Si4432(SpiRegisterOps* spiOps, GpioOps* gpioOps, int ssPin, int shdnPin);
 
-    void init();
+    void initHw();
+    void initRegs();
 
     void getSyncWord(uint8_t* data);
     uint8_t getType();
@@ -81,6 +92,9 @@ public:
     void transmit(uint8_t* data, int len);
     void setOnReceive(OnReceive onReceive);
     void receive();
+
+private:
+    void setDataSource(ModulationDataSource dataSource);
 
 };
 
