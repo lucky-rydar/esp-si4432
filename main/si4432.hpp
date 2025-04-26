@@ -30,6 +30,8 @@ private:
     enum Regs : uint8_t {
         DEV_TYPE = 0x00,
         DEV_VERSION = 0x01,
+        INTERRUPT_STATUS_1 = 0x03,
+        INTERRUPT_STATUS_2 = 0x04,
         SYNC_WORD3 = 0x36,
         SYNC_WORD2 = 0x37,
         SYNC_WORD1 = 0x38,
@@ -66,6 +68,36 @@ public:
         UNKNOWN = 0xFF
     };
 
+    struct InterruptStatus {
+        union {
+            struct {
+                // Bitfields for Interrupt Status 1 (Address 0x03)
+                uint8_t icrcrerror : 1; // D0: CRC Error Interrupt Status (Valid Packet Received Interrupt Enable = 1 required)
+                uint8_t ipkvalid   : 1; // D1: Packet Valid Interrupt Status
+                uint8_t ipksent    : 1; // D2: Packet Sent Interrupt Status
+                uint8_t iext       : 1; // D3: External Interrupt Status
+                uint8_t irxffafull : 1; // D4: RX FIFO Almost Full Interrupt Status
+                uint8_t itxffaem   : 1; // D5: TX FIFO Almost Empty Interrupt Status
+                uint8_t itxffafull : 1; // D6: TX FIFO Almost Full Interrupt Status
+                uint8_t iferr      : 1; // D7: FIFO Error Interrupt Status
+
+                // Bitfields for Interrupt Status 2 (Address 0x04)
+                uint8_t ipor       : 1; // D0: Power-On Reset Interrupt Status
+                uint8_t ichiprdy   : 1; // D1: Chip Ready (XTAL OK) Interrupt Status
+                uint8_t ilbd       : 1; // D2: Low Battery Detect Interrupt Status
+                uint8_t iwut       : 1; // D3: Wake-Up Timer Interrupt Status
+                uint8_t irssi      : 1; // D4: RSSI Interrupt Status
+                uint8_t ipreainval : 1; // D5: Invalid Preamble Detected Interrupt Status
+                uint8_t ipreaval   : 1; // D6: Valid Preamble Detected Interrupt Status
+                uint8_t iswdet     : 1; // D7: Sync Word Detected Interrupt Status
+            } bits;
+            struct {
+                uint8_t reg1;
+                uint8_t reg2;
+            } regs;
+        };
+    };
+
 private:
     const uint8_t modtyp_mask = 0b00000011;
 
@@ -73,6 +105,8 @@ private:
     GpioOps* m_gpioOps;
     int m_ssPin = -1;
     int m_shdnPin = -1;
+
+    InterruptStatus m_interruptStatusLatest;
 
 public:
     Si4432(SpiRegisterOps* spiOps, GpioOps* gpioOps, int ssPin, int shdnPin);
@@ -101,6 +135,7 @@ public:
 
 private:
     void setDataSource(ModulationDataSource dataSource);
+    InterruptStatus getInterruptStatus();
 
 };
 

@@ -1,5 +1,7 @@
 #include "si4432.hpp"
 
+#include <memory.h>
+
 #define LOG_TAG "Si443x"
 
 Si4432::Si4432(SpiRegisterOps* spiOps, GpioOps* gpioOps, int ssPin, int shdnPin)
@@ -7,7 +9,9 @@ Si4432::Si4432(SpiRegisterOps* spiOps, GpioOps* gpioOps, int ssPin, int shdnPin)
     , m_gpioOps(gpioOps)
     , m_ssPin(ssPin)
     , m_shdnPin(shdnPin)
-{}
+{
+    memset(static_cast<void*>(&m_interruptStatusLatest), sizeof(m_interruptStatusLatest), 0);
+}
 
 void Si4432::initHw() {
     m_gpioOps->reset(m_ssPin);
@@ -81,8 +85,8 @@ void Si4432::transmit(uint8_t* data, int len) {
 }
 
 void Si4432::onIrq() {
-    // TODO: here handle the IRQ by reading all the registers to check out what happened
     printf("Si4432::onIrq was called");
+    m_interruptStatusLatest = getInterruptStatus();
 }
 
 bool Si4432::isReceived() {
@@ -92,4 +96,13 @@ bool Si4432::isReceived() {
 
 void Si4432::receive() {
     // TODO: implement
+}
+
+Si4432::InterruptStatus Si4432::getInterruptStatus() {
+    uint8_t status1 = m_spiOps->readReg(Regs::INTERRUPT_STATUS_1);
+    uint8_t status2 = m_spiOps->readReg(Regs::INTERRUPT_STATUS_2);
+    Si4432::InterruptStatus ret;
+    ret.regs.reg1 = status1;
+    ret.regs.reg2 = status2;
+    return ret;
 }
