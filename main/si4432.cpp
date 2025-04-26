@@ -80,8 +80,14 @@ void Si4432::transmit(uint8_t* data, int len) {
     // TODO: implement
 }
 
-void Si4432::setOnReceive(OnReceive onReceive) {
-    m_onReceive = onReceive;
+void Si4432::onIrq() {
+    // TODO: here handle the IRQ by reading all the registers to check out what happened
+    printf("Si4432::onIrq was called");
+}
+
+bool Si4432::isReceived() {
+    // TODO: implement returning local variable, not using SPI. the SPI should be read once on IRQ
+    return false;
 }
 
 void Si4432::receive() {

@@ -31,7 +31,7 @@ private:
 public:
     virtual void reset(int pin);
     virtual void setDirection(int pin, GpioDirection direction);
-    virtual void setLevel(int pin, int lvl) ;
+    virtual void setLevel(int pin, int lvl);
 };
 
 #endif // SI4432_ESP_HAL_HPP

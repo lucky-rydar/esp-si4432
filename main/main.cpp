@@ -32,7 +32,7 @@
 #define PIN_MOSI 10
 #define PIN_SS GPIO_NUM_7
 #define PIN_CLK 8
-#define PIN_NIRQ 6
+#define PIN_NIRQ GPIO_NUM_6
 #define PIN_SHDN GPIO_NUM_13 // ?
 #define PIN_SI4432_GPIO0 1 // ?
 #define PIN_SI4432_GPIO1 2 // ?
@@ -69,6 +69,25 @@ spi_device_handle_t initSpi() {
     return spi;
 }
 
+void on_nirq_interrupt(void* arg) {
+    Si4432* si4432 = static_cast<Si4432*>(arg);
+    si4432->onIrq();
+}
+
+void init_nirq_interrupt(Si4432* arg, gpio_num_t nirq_pin) {
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << (int)nirq_pin),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_NEGEDGE
+    };
+    gpio_config(&io_conf);
+
+    gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
+    gpio_isr_handler_add(nirq_pin, on_nirq_interrupt, (void*)arg);
+}
+
 extern "C" void app_main(void)
 {
     spi_device_handle_t spi = initSpi();
@@ -77,6 +96,8 @@ extern "C" void app_main(void)
     Si4432GpioOps si4432GpioOps;
     Si4432 si4432((SpiRegisterOps*)&si4432SpiRegisterOps, (GpioOps*)&si4432GpioOps, (int)PIN_SS, (int)PIN_SHDN);
     si4432.initHw();
+
+    init_nirq_interrupt(&si4432, PIN_NIRQ);
 
     vTaskDelay(pdMS_TO_TICKS(500)); // wait for si4432 to start 
     // vTaskDelay(pdMS_TO_TICKS(10)); // needed to wait for initialization of device

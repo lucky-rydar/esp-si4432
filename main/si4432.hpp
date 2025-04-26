@@ -3,6 +3,8 @@
 
 #include <cinttypes>
 #include <functional>
+#include <stdio.h>
+
 class SpiRegisterOps {
 public:
     virtual void writeReg(uint8_t reg, uint8_t val) = 0;
@@ -16,8 +18,6 @@ enum class GpioDirection {
     Input,
     Output
 };
-
-using OnReceive = std::function<void(uint8_t*, int)>;
 class GpioOps {
 public:
     virtual void reset(int pin) = 0;
@@ -73,7 +73,6 @@ private:
     GpioOps* m_gpioOps;
     int m_ssPin = -1;
     int m_shdnPin = -1;
-    OnReceive m_onReceive;
 
 public:
     Si4432(SpiRegisterOps* spiOps, GpioOps* gpioOps, int ssPin, int shdnPin);
@@ -90,8 +89,15 @@ public:
     ModulationType getModulation();
 
     void transmit(uint8_t* data, int len);
-    void setOnReceive(OnReceive onReceive);
+    bool isReceived();
     void receive();
+
+    /**
+     * Function: onIrq
+     * 
+     * Description: expected to be called externally from irq handler.
+     */
+    void onIrq();
 
 private:
     void setDataSource(ModulationDataSource dataSource);
