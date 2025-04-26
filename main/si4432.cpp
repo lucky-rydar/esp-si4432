@@ -72,10 +72,9 @@ Si4432::ModulationType Si4432::getModulation() {
 }
 
 void Si4432::setDataSource(ModulationDataSource dataSource) {
-    uint8_t dataSourceMask = 0b00110000;
     uint8_t dataSourceInt = (uint8_t)dataSource;
     uint8_t mod_control_2_reg_val = m_spiOps->readReg(Regs::MODULATION_CONTROL_2);
-    mod_control_2_reg_val &= (~dataSourceMask);
+    mod_control_2_reg_val &= (~data_source_mask);
     mod_control_2_reg_val |= (dataSourceInt << 4);
     m_spiOps->writeReg(Regs::MODULATION_CONTROL_2, mod_control_2_reg_val);
 }

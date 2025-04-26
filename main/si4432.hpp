@@ -132,6 +132,7 @@ public:
 
 private:
     const uint8_t modtyp_mask = 0b00000011;
+    const uint8_t data_source_mask = 0b00110000;
 
     SpiRegisterOps* m_spiOps;
     GpioOps* m_gpioOps;
