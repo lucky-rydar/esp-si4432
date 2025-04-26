@@ -32,6 +32,8 @@ private:
         DEV_VERSION = 0x01,
         INTERRUPT_STATUS_1 = 0x03,
         INTERRUPT_STATUS_2 = 0x04,
+        INTERRUPT_ENABLE_1 = 0x05,
+        INTERRUPT_ENABLE_2 = 0x06,
         SYNC_WORD3 = 0x36,
         SYNC_WORD2 = 0x37,
         SYNC_WORD1 = 0x38,
@@ -98,6 +100,36 @@ public:
         };
     };
 
+    struct InterruptEnable {
+        union {
+            struct {
+                // Bitfields for Interrupt Enable 1 (Address 0x05)
+                uint8_t encrerror  : 1; // D0
+                uint8_t enpkvalid  : 1; // D1
+                uint8_t enpksent   : 1; // D2
+                uint8_t enext      : 1; // D3
+                uint8_t enrxffafull: 1; // D4
+                uint8_t entxffaem  : 1; // D5
+                uint8_t entxffafull: 1; // D6
+                uint8_t enfferr    : 1; // D7
+
+                // Bitfields for Interrupt Enable 2 (Address 0x06)
+                uint8_t enpor      : 1; // D0
+                uint8_t enchiprdy  : 1; // D1
+                uint8_t enlbd      : 1; // D2
+                uint8_t enwut      : 1; // D3
+                uint8_t enrssi     : 1; // D4
+                uint8_t enpreainval: 1; // D5
+                uint8_t enpreaval  : 1; // D6
+                uint8_t enswdet    : 1; // D7
+            } bits;
+            struct {
+                uint8_t reg1;
+                uint8_t reg2;
+            } regs;
+        };
+    };
+
 private:
     const uint8_t modtyp_mask = 0b00000011;
 
@@ -132,6 +164,8 @@ public:
      * Description: expected to be called externally from irq handler.
      */
     void onIrq();
+
+    void applyInterruptEnable(InterruptEnable interruptEnable);
 
 private:
     void setDataSource(ModulationDataSource dataSource);

@@ -106,3 +106,8 @@ Si4432::InterruptStatus Si4432::getInterruptStatus() {
     ret.regs.reg2 = status2;
     return ret;
 }
+
+void Si4432::applyInterruptEnable(InterruptEnable interruptEnable) {
+    m_spiOps->writeReg(Regs::INTERRUPT_ENABLE_1, interruptEnable.regs.reg1);
+    m_spiOps->writeReg(Regs::INTERRUPT_ENABLE_2, interruptEnable.regs.reg2);
+}
