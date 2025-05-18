@@ -1,3 +1,6 @@
 .vscode/
 build/
 sdkconfig*
+.cache/
+e2e.log
+
