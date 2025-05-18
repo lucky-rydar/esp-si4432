@@ -10,7 +10,7 @@ Si4432::Si4432(SpiRegisterOps* spiOps, GpioOps* gpioOps, int ssPin, int shdnPin)
     , m_ssPin(ssPin)
     , m_shdnPin(shdnPin)
 {
-    memset(static_cast<void*>(&m_interruptStatusLatest), sizeof(m_interruptStatusLatest), 0);
+    memset(static_cast<void*>(&m_interruptStatusLatest), 0, sizeof(m_interruptStatusLatest));
 }
 
 void Si4432::initHw() {
